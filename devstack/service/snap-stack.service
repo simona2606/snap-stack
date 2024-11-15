@@ -1,0 +1,13 @@
+[Unit]
+Description=Snap Stack Plugin OpenStack
+After=network.target
+
+[Service]
+User=stack
+Type=simple
+WorkingDirectory=/opt/stack/snap-stack
+ExecStart=/opt/stack/snap-stack/app/venv/bin/python3 /opt/stack/snap-stack/app/app.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

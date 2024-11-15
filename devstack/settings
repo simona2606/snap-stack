@@ -1,0 +1,8 @@
+# settings openstack
+enable_service snap-stack
+
+# used directories
+PLUGIN_DIR=$DEST/snap-stack
+APP_DIR=$PLUGIN_DIR/app
+SERVICE_DIR=$PLUGIN_DIR/devstack/service
+SYSTEMD_DIR=/etc/systemd/system
