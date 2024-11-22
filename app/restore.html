@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripristina Volume</title>
+</head>
+<body>
+    <h1>Ripristina Volume: {{ volume_id }}</h1>
+    <form method="post">
+        <label for="snapshot_id">Seleziona uno Snapshot:</label>
+        <select name="snapshot_id" id="snapshot_id">
+            {% for snapshot in snapshots %}
+            <option value="{{ snapshot.id }}">{{ snapshot.id }} (Creato: {{ snapshot.created_at }})</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Ripristina</button>
+    </form>
+    <a href="/">Torna alla pagina principale</a>
+</body>
+</html>
+

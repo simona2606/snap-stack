@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snap Stack</title>
+</head>
+<body>
+    <h1>Gestione dei Volumi</h1>
+    <table border="1">
+        <tr>
+            <th>ID Volume</th>
+            <th>Nome</th>
+            <th>Stato</th>
+            <th>Azioni</th>
+        </tr>
+        {% for volume in volumes %}
+        <tr>
+            <td>{{ volume.id }}</td>
+            <td>{{ volume.name or 'N/A' }}</td>
+            <td>{{ volume.status }}</td>
+            <td>
+                <form action="/snapshot/{{ volume.id }}" method="post" style="display:inline;">
+                    <button type="submit">Crea Snapshot</button>
+                </form>
+                <form action="/clean/{{ volume.id }}" method="post" style="display:inline;">
+                    <button type="submit">Pulisci Snapshot Vecchi</button>
+                </form>
+                <a href="/restore/{{ volume.id }}">Ripristina</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+
