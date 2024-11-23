@@ -1,79 +1,119 @@
 from flask import Flask, render_template, request, redirect, url_for
+from monitor import monitor_volumes
+from restore import restore_volume
+from scheduler import schedule_snapshots
+from storage import clean_old_snapshots
 from cinderclient import client
 from apscheduler.schedulers.background import BackgroundScheduler
 
-# Configurazione iniziale
+# Initial configuration
 app = Flask(__name__)
 scheduler = BackgroundScheduler()
 
-# Autenticazione OpenStack
+# OpenStack authentication
 def get_cinder_client():
-    return client.Client(
-        version='3',
-        username='admin',
-        password='secret',
-        project_name='demo',
-        auth_url='http://192.168.64.2/identity/v3'
-    )
+    try:
+        return client.Client(
+            version='3',
+            username='admin',
+            password='secret',
+            project_name='demo',
+            auth_url='http://192.168.64.2/identity/v3'
+        )
+    except Exception as e:
+        print(f"Error during OpenStack authentication: {e}")
+        raise
 
-# Funzione per creare snapshot
+# Function to create a snapshot 
 def create_snapshot(volume_id):
-    cinder = get_cinder_client()
-    snapshot = cinder.volume_snapshots.create(volume_id, name=f'snapshot-{volume_id}')
-    print(f"Snapshot creato per volume {volume_id}: {snapshot.id}")
-    return snapshot.id
+    try:
+        cinder = get_cinder_client()
+        snapshot = cinder.volume_snapshots.create(volume_id, name=f'snapshot-{volume_id}')
+        print(f"Snapshot created for volume {volume_id}: {snapshot.id}")
+        return snapshot.id
+    except Exception as e:
+        print(f"Error creating snapshot for volume {volume_id}: {e}")
+        raise
 
-# Funzione per monitorare lo stato dei volumi
-def list_volumes():
-    cinder = get_cinder_client()
-    return cinder.volumes.list()
+# Function to rotate old snapshots
+def clean_snapshots(volume_id):
+    try:
+        clean_old_snapshots(volume_id, keep_count=3)
+    except Exception as e:
+        print(f"Error cleaning old snapshots for volume {volume_id}: {e}")
+        raise
 
-# Funzione per ripristinare un volume
-def restore_volume(volume_id, snapshot_id):
-    cinder = get_cinder_client()
-    cinder.volumes.revert_to_snapshot(volume_id, snapshot_id)
-    print(f"Volume {volume_id} ripristinato dallo snapshot {snapshot_id}.")
-
-# Rotazione degli snapshot
-def clean_old_snapshots(volume_id, keep=3):
-    cinder = get_cinder_client()
-    snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
-    snapshots.sort(key=lambda x: x.created_at, reverse=True)
-    for snapshot in snapshots[keep:]:
-        cinder.volume_snapshots.delete(snapshot.id)
-        print(f"Snapshot eliminato: {snapshot.id}")
-
-# Endpoint principale: elenco volumi
+# Main endpoint: list all volumes
 @app.route('/')
 def index():
-    volumes = list_volumes()
-    return render_template('index.html', volumes=volumes)
+    try:
+        cinder = get_cinder_client()
+        volumes = cinder.volumes.list()
+        return render_template('index.html', volumes=volumes)
+    except Exception as e:
+        print(f"Error retrieving volumes: {e}")
+        return "Error retrieving volumes", 500
 
-# Creazione manuale di uno snapshot
+# Endpoint to manually create a snapshot
 @app.route('/snapshot/<volume_id>', methods=['POST'])
 def snapshot(volume_id):
-    snapshot_id = create_snapshot(volume_id)
-    return redirect(url_for('index'))
+    try:
+        create_snapshot(volume_id)
+        return redirect(url_for('index'))
+    except Exception as e:
+        print(f"Error creating snapshot for volume {volume_id}: {e}")
+        return f"Error creating snapshot for volume {volume_id}", 500
 
-# Pulizia snapshot vecchi
+# Endpoint to manually clean old snapshots
 @app.route('/clean/<volume_id>', methods=['POST'])
 def clean(volume_id):
-    clean_old_snapshots(volume_id)
-    return redirect(url_for('index'))
+    try:
+        clean_snapshots(volume_id)
+        return redirect(url_for('index'))
+    except Exception as e:
+        print(f"Error cleaning snapshots for volume {volume_id}: {e}")
+        return f"Error cleaning snapshots for volume {volume_id}", 500
 
-# Pagina per ripristinare un volume
+# Endpoint to schedule automatic snapshots
+@app.route('/schedule/<volume_id>', methods=['POST'])
+def schedule(volume_id):
+    try:
+        schedule_snapshots(volume_id, interval_minutes=60)  # Adjust interval as needed
+        return redirect(url_for('index'))
+    except Exception as e:
+        print(f"Error scheduling snapshots for volume {volume_id}: {e}")
+        return f"Error scheduling snapshots for volume {volume_id}", 500
+
+# Endpoint to monitor volume status
+@app.route('/monitor', methods=['GET'])
+def monitor():
+    try:
+        monitor_volumes()
+        return "Monitoring completed. Check logs for details."
+    except Exception as e:
+        print(f"Error monitoring volumes: {e}")
+        return "Error monitoring volumes", 500
+
+# Endpoint to restore a volume
 @app.route('/restore/<volume_id>', methods=['GET', 'POST'])
 def restore(volume_id):
-    if request.method == 'POST':
-        snapshot_id = request.form['snapshot_id']
-        restore_volume(volume_id, snapshot_id)
-        return redirect(url_for('index'))
-    cinder = get_cinder_client()
-    snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
-    return render_template('restore.html', volume_id=volume_id, snapshots=snapshots)
+    try:
+        cinder = get_cinder_client()
+        if request.method == 'POST':
+            snapshot_id = request.form['snapshot_id']
+            restore_volume(volume_id, snapshot_id)
+            return redirect(url_for('index'))
+        snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
+        return render_template('restore.html', volume_id=volume_id, snapshots=snapshots)
+    except Exception as e:
+        print(f"Error restoring volume {volume_id}: {e}")
+        return f"Error restoring volume {volume_id}", 500
 
-# Avvio dell'app Flask
+# Start the Flask app and the scheduler
 if __name__ == '__main__':
-    scheduler.start()
-    app.run(host='0.0.0.0', port=5234)
+    try:
+        scheduler.start()
+        app.run(host='0.0.0.0', port=5235)
+    except Exception as e:
+        print(f"Error starting the application: {e}")
 
