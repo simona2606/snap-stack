@@ -1,3 +1,5 @@
+from scheduler import get_cinder_client
+
 def clean_old_snapshots(volume_id, keep_count=3):
     cinder = get_cinder_client()
     snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})

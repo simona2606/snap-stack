@@ -3,26 +3,13 @@ from monitor import monitor_volumes
 from restore import restore_volume
 from scheduler import schedule_snapshots
 from storage import clean_old_snapshots
-from cinderclient import client
 from apscheduler.schedulers.background import BackgroundScheduler
+import os
+from scheduler import get_cinder_client
 
 # Initial configuration
 app = Flask(__name__)
 scheduler = BackgroundScheduler()
-
-# OpenStack authentication
-def get_cinder_client():
-    try:
-        return client.Client(
-            version='3',
-            username='admin',
-            password='secret',
-            project_name='demo',
-            auth_url='http://192.168.64.2/identity/v3'
-        )
-    except Exception as e:
-        print(f"Error during OpenStack authentication: {e}")
-        raise
 
 # Function to create a snapshot 
 def create_snapshot(volume_id):
@@ -51,7 +38,7 @@ def index():
         volumes = cinder.volumes.list()
         return render_template('index.html', volumes=volumes)
     except Exception as e:
-        print(f"Error retrieving volumes: {e}")
+        app.logger.error(f"Error retrieving volumes: {e}", exc_info=True)
         return "Error retrieving volumes", 500
 
 # Endpoint to manually create a snapshot
