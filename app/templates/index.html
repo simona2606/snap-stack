@@ -4,33 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snap Stack</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <h1>Volume Management</h1>
     <table border="1">
-        <tr>
-            <th>ID Volume</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for volume in volumes %}
-        <tr>
-            <td>{{ volume.id }}</td>
-            <td>{{ volume.name or 'N/A' }}</td>
-            <td>{{ volume.status }}</td>
-            <td>
-                <form action="/snapshot/{{ volume.id }}" method="post" style="display:inline;">
-                    <button type="submit">Create Snapshot</button>
-                </form>
-                <form action="/clean/{{ volume.id }}" method="post" style="display:inline;">
-                    <button type="submit">Clean Old Snapshot</button>
-                </form>
-                <a href="/restore/{{ volume.id }}">Restore</a>
-            </td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <th>ID Volume</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for volume in volumes %}
+            <tr>
+                <td>{{ volume.id }}</td>
+                <td>{{ volume.name or 'N/A' }}</td>
+                <td>{{ volume.status }}</td>
+                <td>
+                    <form action="/snapshot/{{ volume.id }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn">Create Snapshot</button>
+                    </form>
+                    <form action="/clean/{{ volume.id }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn">Clean Old Snapshot</button>
+                    </form>
+                    <a href="/restore/{{ volume.id }}" class="btn">Restore</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </body>
 </html>
-

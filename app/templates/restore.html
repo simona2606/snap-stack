@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restore Volume</title>
+    <link rel="stylesheet" href="/static/styles.css"> 
 </head>
 <body>
     <h1>Restore Volume: {{ volume_id }}</h1>
@@ -11,12 +12,11 @@
         <label for="snapshot_id">Select a Snapshot:</label>
         <select name="snapshot_id" id="snapshot_id">
             {% for snapshot in snapshots %}
-            <option value="{{ snapshot.id }}">{{ snapshot.id }} (Creato: {{ snapshot.created_at }})</option>
+            <option value="{{ snapshot.id }}">{{ snapshot.id }} (Created: {{ snapshot.created_at }})</option>
             {% endfor %}
         </select>
-        <button type="submit">Restore</button>
+        <button type="submit" class="btn">Restore</button>
     </form>
-    <a href="/">Back to the main page</a>
+    <a href="/" class="btn">Back to the main page</a>
 </body>
 </html>
-

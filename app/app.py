@@ -86,15 +86,20 @@ def monitor():
 def restore(volume_id):
     try:
         cinder = get_cinder_client()
+
+        # If the request is a POST (form submission), perform the restore action
         if request.method == 'POST':
-            snapshot_id = request.form['snapshot_id']
-            restore_volume(volume_id, snapshot_id)
-            return redirect(url_for('index'))
+            snapshot_id = request.form['snapshot_id']  # Retrieve the selected snapshot ID from the form
+            restore_volume(volume_id, snapshot_id) 
+            return redirect(url_for('index'))  # Redirect back to the index page after restoring the volume
+
+        # If the request is GET, display the restore page with available snapshots for the volume
         snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
         return render_template('restore.html', volume_id=volume_id, snapshots=snapshots)
+
     except Exception as e:
         print(f"Error restoring volume {volume_id}: {e}")
-        return f"Error restoring volume {volume_id}", 500
+        return f"Error restoring volume {volume_id}", 500 
 
 # Start the Flask app and the scheduler
 if __name__ == '__main__':
