@@ -6,7 +6,7 @@ def restore_volume(volume_id):
     if snapshots:
         latest_snapshot = sorted(snapshots, key=lambda s: s.created_at, reverse=True)[0]
         restored_volume = cinder.volumes.create(size=latest_snapshot.size, snapshot_id=latest_snapshot.id)
-        print(f"Volume ripristinato: {restored_volume.id}")
+        print(f"Volume restored: {restored_volume.id}")
     else:
-        print(f"Nessun snapshot valido trovato per il volume {volume_id}")
+        print(f"No valid snapshot found for volume {volume_id}")
 

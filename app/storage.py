@@ -6,5 +6,5 @@ def clean_old_snapshots(volume_id, keep_count=3):
     snapshots_to_delete = sorted(snapshots, key=lambda s: s.created_at)[:-keep_count]
     for snapshot in snapshots_to_delete:
         cinder.volume_snapshots.delete(snapshot.id)
-        print(f"Snapshot eliminato: {snapshot.id}")
+        print(f"Snapshot deleted: {snapshot.id}")
 
