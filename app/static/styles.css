@@ -1,0 +1,37 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+h1 {
+    font-weight: 700;
+    color: #007bff;
+}
+
+.table {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-hover tbody tr:hover {
+    background: #f1f1f1;
+}
+
+.btn {
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.text-danger {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.text-success {
+    font-weight: bold;
+    color: #28a745;
+}

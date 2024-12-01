@@ -4,19 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restore Volume</title>
-    <link rel="stylesheet" href="/static/styles.css"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Restore Volume: {{ volume_id }}</h1>
-    <form method="post">
-        <label for="snapshot_id">Select a Snapshot:</label>
-        <select name="snapshot_id" id="snapshot_id">
-            {% for snapshot in snapshots %}
-            <option value="{{ snapshot.id }}">{{ snapshot.id }} (Created: {{ snapshot.created_at }})</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn">Restore</button>
-    </form>
-    <a href="/" class="btn">Back to the main page</a>
+<body class="bg-light">
+    <div class="container mt-4">
+        <h1 class="text-center text-primary mb-4">Restore Volume: {{ volume_id }}</h1>
+
+        <!-- Form for Snapshot Selection and Volume Name -->
+        <div class="card shadow-sm p-4">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="snapshot_id" class="form-label">Select a Snapshot:</label>
+                    <select name="snapshot_id" id="snapshot_id" class="form-select">
+                        {% for snapshot in snapshots %}
+                        <option value="{{ snapshot.id }}">
+                            {{ snapshot.id }} (Created: {{ snapshot.created_at }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="volume_name" class="form-label">Enter the Volume Name:</label>
+                    <input type="text" class="form-control" id="volume_name" name="volume_name" placeholder="Enter a name for the restored volume" required>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Restore</button>
+            </form>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-secondary">Back to the Main Page</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
