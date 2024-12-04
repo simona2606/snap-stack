@@ -23,9 +23,9 @@ def create_snapshot(volume_id):
         raise
 
 # Function to rotate old snapshots
-def clean_snapshots(volume_id):
+def clean_snapshots(volume_id, keep_count):
     try:
-        clean_old_snapshots(volume_id, keep_count=3)
+        clean_old_snapshots(volume_id, keep_count=keep_count)
     except Exception as e:
         print(f"Error cleaning old snapshots for volume {volume_id}: {e}")
         raise
@@ -35,53 +35,50 @@ def clean_snapshots(volume_id):
 def index():
     try:
         cinder = get_cinder_client()
-        print(f"Cinder object: {cinder}")
         volumes = cinder.volumes.list()
-        return render_template('index.html', volumes=volumes)
+        message = None  # Default message is None if there are no alerts
+        return render_template('index.html', volumes=volumes, message=message)
     except Exception as e:
         app.logger.error(f"Error retrieving volumes: {e}", exc_info=True)
-        return "Error retrieving volumes", 500
+        message = ("Error retrieving volumes", "danger")  # Error message
+        return render_template('index.html', message=message)
 
 # Endpoint to manually create a snapshot
 @app.route('/snapshot/<volume_id>', methods=['POST'])
 def snapshot(volume_id):
     try:
         create_snapshot(volume_id)
-        return redirect(url_for('index'))
+        message = ("Snapshot created successfully!", "success")  # Success message
     except Exception as e:
-        print(f"Error creating snapshot for volume {volume_id}: {e}")
-        return f"Error creating snapshot for volume {volume_id}", 500
+        message = (f"Error creating snapshot for volume {volume_id}: {e}", "danger")  # Error message
+
+    cinder = get_cinder_client()
+    volumes = cinder.volumes.list()
+    return render_template('index.html', message=message, volumes=volumes)
 
 # Endpoint to manually clean old snapshots
 @app.route('/clean/<volume_id>', methods=['POST'])
 def clean(volume_id):
     try:
         keep_count = int(request.form['keep_count'])
-        clean_old_snapshots(volume_id, keep_count=keep_count)
-        return redirect(url_for('index'))
+        clean_snapshots(volume_id, keep_count=keep_count)
+        message = ("Old snapshots cleaned successfully!", "success")  # Success message
     except Exception as e:
-        print(f"Error cleaning snapshots for volume {volume_id}: {e}")
-        return f"Error cleaning snapshots for volume {volume_id}", 500
+        message = (f"Error cleaning snapshots for volume {volume_id}: {e}", "danger")  # Error message
 
-# Endpoint to schedule automatic snapshots
-@app.route('/schedule/<volume_id>', methods=['POST'])
-def schedule(volume_id):
-    try:
-        schedule_snapshots(volume_id, interval_minutes=60)  # Adjust interval as needed
-        return redirect(url_for('index'))
-    except Exception as e:
-        print(f"Error scheduling snapshots for volume {volume_id}: {e}")
-        return f"Error scheduling snapshots for volume {volume_id}", 500
+    cinder = get_cinder_client()
+    volumes = cinder.volumes.list()
+    return render_template('index.html', message=message, volumes=volumes)
 
 # Endpoint to monitor volume status
 @app.route('/monitor', methods=['GET'])
 def monitor():
     try:
         monitor_volumes()
-        return "Monitoring completed. Check logs for details."
+        message = ("Monitoring completed successfully.", "success")  # Success message
     except Exception as e:
-        print(f"Error monitoring volumes: {e}")
-        return "Error monitoring volumes", 500
+        message = ("Error monitoring volumes", "danger")  # Error message
+    return render_template('index.html', message=message)
 
 # Endpoint to restore a volume
 @app.route('/restore/<volume_id>', methods=['GET', 'POST'])
@@ -95,16 +92,17 @@ def restore(volume_id):
             volume_name = request.form['volume_name']
 
             restore_volume(volume_id, snapshot_id, volume_name) 
-            return redirect(url_for('index'))  # Redirect back to the index page after restoring the volume
+            message = ("Volume restored successfully!", "success")  # Success message
+            return redirect(url_for('index', message=message))  # Redirect back to the index page after restoring the volume
         
         # If the request is GET, display the restore page with available snapshots for the volume
         snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
-        return render_template('restore.html', volume_id=volume_id, snapshots=snapshots)
+        return render_template('restore.html', volume_id=volume_id, snapshots=snapshots, message=None)
     
     except Exception as e:
         print(f"Error restoring volume {volume_id}: {e}")
-        return f"Error restoring volume {volume_id}", 500 
-
+        message = (f"Error restoring volume {volume_id}: {e}", "danger")  # Error message
+        return render_template('index.html', message=message)
 
 if __name__ == '__main__':
     try:
@@ -116,3 +114,4 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5235)
     except Exception as e:
         print(f"Error starting the application: {e}")
+
