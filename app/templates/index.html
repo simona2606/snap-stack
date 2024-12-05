@@ -49,17 +49,28 @@
                         </form>
 
                         <!-- Clean Snapshots Form -->
-                        <div class="d-flex align-items-center mb-2">
-                            <form action="/clean/{{ volume.id }}" method="post" class="d-flex w-100">
-                                <input type="number" 
-                                       name="keep_count" 
-                                       placeholder="Snapshots to keep" 
-                                       required 
-                                       class="form-control d-inline me-2 flex-grow-1" 
-                                       min="1">
-                                <button type="submit" class="btn btn-warning btn-sm btn-fixed-width mb-3">Clean Old Snapshots</button>
-                            </form>
-                        </div>
+			<div class="mb-3">
+    			    <form action="/clean/{{ volume.id }}" method="post" class="d-flex align-items-center gap-2 w-100">
+        		        <!-- Input for Snapshots to Keep -->
+        		        <input type="number" 
+               			       name="keep_count" 
+               			       placeholder="Snapshots to keep" 
+               			       required 
+               			       class="form-control flex-grow-1" 
+              			       min="1">
+
+      			        <!-- Input for Maximum Storage Limit -->
+       			        <input type="number"
+               		               name="max_size_gb"
+              			       placeholder="Max size (GB)"
+               			       required
+               			       class="form-control flex-grow-1"
+               			       min="1">
+
+        		       <!-- Button for Clean Old Snapshots -->
+       			       <button type="submit" class="btn btn-warning btn-sm">Clean Old Snapshots</button>
+    			   </form>
+			</div>
 
                         <!-- Restore Volume Link -->
                         <a href="/restore/{{ volume.id }}" class="btn btn-success btn-sm btn-fixed-width d-block">Restore</a>

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from monitor import monitor_volumes
 from restore import restore_volume
 from scheduler import schedule_snapshots, start_monitoring
-from storage import clean_old_snapshots
+from storage import clean_old_snapshots, enforce_storage_limits
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 from client import get_cinder_client
@@ -64,12 +64,19 @@ def snapshot(volume_id):
 @app.route('/clean/<volume_id>', methods=['POST'])
 def clean(volume_id):
     try:
-        keep_count = int(request.form['keep_count'])
+        keep_count = int(request.form.get('keep_count', 3))  # Default to 3 snapshots
+        max_size_gb = int(request.form.get('max_size_gb', 50))  # Default to 50 GB
+        
+        # Enforce storage limits first
+        enforce_storage_limits(volume_id, max_size_gb)
+        
+        # Clean old snapshots by count
         clean_snapshots(volume_id, keep_count=keep_count)
+        
         logging.info("Old snapshots cleaned successfully!")
         message = ("Old snapshots cleaned successfully!", "success")  # Success message
     except Exception as e:
-        logging.error("Error cleaning snapshots for volume {volume_id}: {e}")
+        logging.error(f"Error cleaning snapshots for volume {volume_id}: {e}")
         message = (f"Error cleaning snapshots for volume {volume_id}: {e}", "danger")  # Error message
 
     cinder = get_cinder_client()
