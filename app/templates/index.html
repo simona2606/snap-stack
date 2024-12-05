@@ -6,20 +6,26 @@
     <title>Snap Stack</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body class="bg-light">
+<body class="bg-light" style="font-family: 'Poppins', sans-serif;">
     <div class="container mt-4">
-        <!-- Page Title -->
-        <h1 class="text-center text-primary mb-4">Volume Management</h1>
 
         <!-- Feedback Message -->
         {% if message %}
-        <div class="alert alert-{{ message[1] }} text-center">{{ message[0] }}</div>
+        <div class="alert alert-{{ message[1] }} alert-dismissible fade show text-center" role="alert">
+            {{ message[0] }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         {% endif %}
 
+        <!-- Page Title -->
+        <h1 class="text-center mb-4" style="color: #01110a;">Volume Management</h1>
+
         <!-- Volume Table -->
-        <table class="table table-bordered table-hover shadow-sm">
+        <table class="table table-bordered table-hover shadow-sm" style="color: #01110a;">
             <thead class="table-dark">
                 <tr>
                     <th>ID Volume</th>
@@ -38,25 +44,25 @@
                     </td>
                     <td>
                         <!-- Create Snapshot Form -->
-                        <form action="/snapshot/{{ volume.id }}" method="post" class="d-inline mb-2">
-                            <button type="submit" class="btn btn-primary btn-sm">Create Snapshot</button>
+                        <form action="/snapshot/{{ volume.id }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-sm btn-fixed-width mb-3">Create Snapshot</button>
                         </form>
 
-                        <!-- Clean Snapshots Form (same row) -->
+                        <!-- Clean Snapshots Form -->
                         <div class="d-flex align-items-center mb-2">
-                            <form action="/clean/{{ volume.id }}" method="post" class="d-inline">
+                            <form action="/clean/{{ volume.id }}" method="post" class="d-flex w-100">
                                 <input type="number" 
                                        name="keep_count" 
                                        placeholder="Snapshots to keep" 
                                        required 
-                                       class="form-control d-inline me-2 w-auto" 
+                                       class="form-control d-inline me-2 flex-grow-1" 
                                        min="1">
-                                <button type="submit" class="btn btn-warning btn-sm">Clean Old Snapshots</button>
+                                <button type="submit" class="btn btn-warning btn-sm btn-fixed-width mb-3">Clean Old Snapshots</button>
                             </form>
                         </div>
 
-                        <!-- Restore Volume Link (same width as Create Snapshot) -->
-                        <a href="/restore/{{ volume.id }}" class="btn btn-success btn-sm d-block w-auto">Restore</a>
+                        <!-- Restore Volume Link -->
+                        <a href="/restore/{{ volume.id }}" class="btn btn-success btn-sm btn-fixed-width d-block">Restore</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -66,81 +72,15 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Close alert automatically after 5 seconds
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            setTimeout(() => {
+                alert.classList.add('fade');
+                setTimeout(() => alert.remove(), 150); // Allow fade animation
+            }, 5000);
+        }
+    </script>
 </body>
 </html>
-
-stack@ubuntu:~/snap-stack/app/templates$ 
-stack@ubuntu:~/snap-stack/app/templates$ ls
-index.html  restore.html
-stack@ubuntu:~/snap-stack/app/templates$ cat index.html 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snap Stack</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body class="bg-light">
-    <div class="container mt-4">
-        <!-- Page Title -->
-        <h1 class="text-center text-primary mb-4">Volume Management</h1>
-
-        <!-- Feedback Message -->
-        {% if message %}
-        <div class="alert alert-{{ message[1] }} text-center">{{ message[0] }}</div>
-        {% endif %}
-
-        <!-- Volume Table -->
-        <table class="table table-bordered table-hover shadow-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID Volume</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for volume in volumes %}
-                <tr>
-                    <td>{{ volume.id }}</td>
-                    <td>{{ volume.name or 'N/A' }}</td>
-                    <td class="{% if volume.status == 'error' %}text-danger{% else %}text-success{% endif %}">
-                        {{ volume.status }}
-                    </td>
-                    <td>
-                        <!-- Create Snapshot Form -->
-                        <form action="/snapshot/{{ volume.id }}" method="post" class="d-inline mb-2">
-                            <button type="submit" class="btn btn-primary btn-sm">Create Snapshot</button>
-                        </form>
-
-                        <!-- Clean Snapshots Form (same row) -->
-                        <div class="d-flex align-items-center mb-2">
-                            <form action="/clean/{{ volume.id }}" method="post" class="d-inline">
-                                <input type="number" 
-                                       name="keep_count" 
-                                       placeholder="Snapshots to keep" 
-                                       required 
-                                       class="form-control d-inline me-2 w-auto" 
-                                       min="1">
-                                <button type="submit" class="btn btn-warning btn-sm">Clean Old Snapshots</button>
-                            </form>
-                        </div>
-
-                        <!-- Restore Volume Link (same width as Create Snapshot) -->
-                        <a href="/restore/{{ volume.id }}" class="btn btn-success btn-sm d-block w-auto">Restore</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-

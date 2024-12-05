@@ -6,6 +6,7 @@ from storage import clean_old_snapshots
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 from client import get_cinder_client
+from notifications import logging, send_email
 
 # Initial configuration
 app = Flask(__name__)
@@ -16,18 +17,19 @@ def create_snapshot(volume_id):
     try:
         cinder = get_cinder_client()
         snapshot = cinder.volume_snapshots.create(volume_id, name=f'snapshot-{volume_id}')
-        print(f"Snapshot created for volume {volume_id}: {snapshot.id}")
+        logging.info(f"Snapshot created for volume {volume_id}: {snapshot.id}")
         return snapshot.id
     except Exception as e:
-        print(f"Error creating snapshot for volume {volume_id}: {e}")
+        logging.error(f"Error creating snapshot for volume {volume_id}: {e}")
         raise
 
 # Function to rotate old snapshots
 def clean_snapshots(volume_id, keep_count):
     try:
         clean_old_snapshots(volume_id, keep_count=keep_count)
+        logging.info("Old Snapshots successfully cleaned!")
     except Exception as e:
-        print(f"Error cleaning old snapshots for volume {volume_id}: {e}")
+        logging.error(f"Error cleaning old snapshots for volume {volume_id}: {e}")
         raise
 
 # Main endpoint: list all volumes
@@ -48,8 +50,10 @@ def index():
 def snapshot(volume_id):
     try:
         create_snapshot(volume_id)
+        logging.info("Snapshot created successfully!")
         message = ("Snapshot created successfully!", "success")  # Success message
     except Exception as e:
+        logging.error("Error creating snapshot for volume {volume_id}: {e}")
         message = (f"Error creating snapshot for volume {volume_id}: {e}", "danger")  # Error message
 
     cinder = get_cinder_client()
@@ -62,8 +66,10 @@ def clean(volume_id):
     try:
         keep_count = int(request.form['keep_count'])
         clean_snapshots(volume_id, keep_count=keep_count)
+        logging.info("Old snapshots cleaned successfully!")
         message = ("Old snapshots cleaned successfully!", "success")  # Success message
     except Exception as e:
+        logging.error("Error cleaning snapshots for volume {volume_id}: {e}")
         message = (f"Error cleaning snapshots for volume {volume_id}: {e}", "danger")  # Error message
 
     cinder = get_cinder_client()
@@ -75,8 +81,10 @@ def clean(volume_id):
 def monitor():
     try:
         monitor_volumes()
+        logging.info("Monitoring completed successfully!")
         message = ("Monitoring completed successfully.", "success")  # Success message
     except Exception as e:
+        logging.error("Error monitoring volumes")
         message = ("Error monitoring volumes", "danger")  # Error message
     return render_template('index.html', message=message)
 
@@ -92,6 +100,7 @@ def restore(volume_id):
             volume_name = request.form['volume_name']
 
             restore_volume(volume_id, snapshot_id, volume_name) 
+            logging.info("Volume restored successfully!")
             message = ("Volume restored successfully!", "success")  # Success message
             return redirect(url_for('index', message=message))  # Redirect back to the index page after restoring the volume
         
@@ -100,7 +109,7 @@ def restore(volume_id):
         return render_template('restore.html', volume_id=volume_id, snapshots=snapshots, message=None)
     
     except Exception as e:
-        print(f"Error restoring volume {volume_id}: {e}")
+        logging.error(f"Error restoring volume {volume_id}: {e}")
         message = (f"Error restoring volume {volume_id}: {e}", "danger")  # Error message
         return render_template('index.html', message=message)
 
@@ -113,5 +122,5 @@ if __name__ == '__main__':
         scheduler.start()
         app.run(host='0.0.0.0', port=5235)
     except Exception as e:
-        print(f"Error starting the application: {e}")
+        logging.error(f"Error starting the application: {e}")
 

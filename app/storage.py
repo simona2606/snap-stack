@@ -1,4 +1,5 @@
 from client import get_cinder_client
+from notifications import logging
 
 def clean_old_snapshots(volume_id, keep_count=3):
     try:
@@ -7,7 +8,7 @@ def clean_old_snapshots(volume_id, keep_count=3):
         snapshots_to_delete = sorted(snapshots, key=lambda s: s.created_at)[:-keep_count]
         for snapshot in snapshots_to_delete:
             cinder.volume_snapshots.delete(snapshot.id)
-            print(f"Snapshot deleted: {snapshot.id}")
+            logging.info(f"Snapshot deleted: {snapshot.id}")
     except Exception as e:
-        print(f"Error cleaning snapshots: {e}")
+        logging.error(f"Error cleaning snapshots: {e}")
 

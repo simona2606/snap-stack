@@ -2,6 +2,7 @@ import os
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from cinderclient import client
+from notifications import logging, send_email
 
 def get_cinder_client():
     try:
@@ -20,5 +21,6 @@ def get_cinder_client():
 
         return client.Client('3', session=sess)
     except Exception as e:
-        print(f"Error creating Cinder client: {e}")
+        logging.error(f"Error creating Cinder client: {e}")
         raise
+

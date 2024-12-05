@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restore Volume</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body class="bg-light">
+<body class="bg-light" style="font-family: 'Poppins', sans-serif;">
     <div class="container mt-4">
-        <h1 class="text-center text-primary mb-4">Restore Volume: {{ volume_id }}</h1>
+        <h1 class="text-center mb-4" style="color: #01110a;">Restore Volume: {{ volume_id }}</h1>
 
         <!-- Form for Snapshot Selection and Volume Name -->
         <div class="card shadow-sm p-4">
@@ -29,13 +33,13 @@
                     <input type="text" class="form-control" id="volume_name" name="volume_name" placeholder="Enter a name for the restored volume" required>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100">Restore</button>
+                <button type="submit" class="btn btn-primary w-100">Restore</button>
             </form>
         </div>
 
         <!-- Back Button -->
         <div class="text-center mt-3">
-            <a href="/" class="btn btn-secondary">Back to the Main Page</a>
+            <a href="/" class="btn btn-warning">Back to the Main Page</a>
         </div>
     </div>
 
@@ -43,3 +47,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
