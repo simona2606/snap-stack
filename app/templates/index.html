@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body class="bg-light" style="font-family: 'Poppins', sans-serif;">
+
     <div class="container mt-4">
 
         <!-- Feedback Message -->
@@ -20,6 +21,11 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
+
+        <!-- Settings Button -->
+        <div class="d-flex justify-content-end mb-3">
+            <a href="/settings" class="btn btn-settings">Settings</a>
+        </div>
 
         <!-- Page Title -->
         <h1 class="text-center mb-4" style="color: #01110a;">Volume Management</h1>
@@ -43,37 +49,23 @@
                         {{ volume.status }}
                     </td>
                     <td>
-                        <!-- Create Snapshot Form -->
-                        <form action="/snapshot/{{ volume.id }}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-primary btn-sm btn-fixed-width mb-3">Create Snapshot</button>
+                        <!-- Action Buttons -->
+                        <div class="btn-group mb-3">
+                            <!-- Button Clean Old Snapshots -->
+                            <form action="/clean/{{ volume.id }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-secondary">Clean Old Snapshots</button>
+                            </form>
+
+                            <!-- Button Restore -->
+                            <form action="/restore/{{ volume.id }}" method="get" class="d-inline">
+                                <button type="submit" class="btn btn-secondary">Restore</button>
+                            </form>
+                        </div>
+
+                        <!-- Button Create Snapshot -->
+                        <form action="/snapshot/{{ volume.id }}" method="post" class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Create Snapshot</button>
                         </form>
-
-                        <!-- Clean Snapshots Form -->
-			<div class="mb-3">
-    			    <form action="/clean/{{ volume.id }}" method="post" class="d-flex align-items-center gap-2 w-100">
-        		        <!-- Input for Snapshots to Keep -->
-        		        <input type="number" 
-               			       name="keep_count" 
-               			       placeholder="Snapshots to keep" 
-               			       required 
-               			       class="form-control flex-grow-1" 
-              			       min="1">
-
-      			        <!-- Input for Maximum Storage Limit -->
-       			        <input type="number"
-               		               name="max_size_gb"
-              			       placeholder="Max size (GB)"
-               			       required
-               			       class="form-control flex-grow-1"
-               			       min="1">
-
-        		       <!-- Button for Clean Old Snapshots -->
-       			       <button type="submit" class="btn btn-warning btn-sm">Clean Old Snapshots</button>
-    			   </form>
-			</div>
-
-                        <!-- Restore Volume Link -->
-                        <a href="/restore/{{ volume.id }}" class="btn btn-success btn-sm btn-fixed-width d-block">Restore</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -95,3 +87,4 @@
     </script>
 </body>
 </html>
+

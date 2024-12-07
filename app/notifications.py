@@ -1,6 +1,10 @@
 import logging
 import smtplib
 from email.message import EmailMessage
+from config import load_config
+
+config = load_config()
+EMAIL_SETTINGS = config["email"]
 
 # Logger Configuration
 logging.basicConfig(
@@ -12,23 +16,24 @@ logging.basicConfig(
     ]
 )
 
-def send_email(subject, body, recipient="simonaettari@libero.it"):
+def send_email(subject, body, recipient=None):
     try:
+        recipient = recipient or EMAIL_SETTINGS["recipient_email"]
+
+        # Usa i parametri di configurazione per la connessione SMTP
+        smtp_server = EMAIL_SETTINGS["smtp_server"]
+        smtp_port = EMAIL_SETTINGS["smtp_port"]
+        gmail_user = EMAIL_SETTINGS["sender_email"]
+        gmail_password = EMAIL_SETTINGS["app_password"]
+
         msg = EmailMessage()
         msg.set_content(body)
         msg['Subject'] = subject
-        msg['From'] = 'your_email@gmail.com'
+        msg['From'] = gmail_user
         msg['To'] = recipient
 
-        # SMTP Configuration of Gmail
-        smtp_server = 'smtp.gmail.com'
-        smtp_port = 587  # SMTP port of Gmail
-        gmail_user = 'simonaTest23@gmail.com'
-        gmail_password = 'rqsj obct otjo vcsh'  # Use an "App Password" for security
-
-        # Connection to SMTP server
         with smtplib.SMTP(smtp_server, smtp_port) as smtp:
-            smtp.starttls()  # Enable TLS Encryption
+            smtp.starttls()
             smtp.login(gmail_user, gmail_password)
             smtp.send_message(msg)
 

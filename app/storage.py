@@ -1,9 +1,13 @@
 from client import get_cinder_client
 from notifications import logging
+from config import load_config
 
-def clean_old_snapshots(volume_id, keep_count=3):
+config = load_config()
+
+def clean_old_snapshots(volume_id, keep_count=None):
     try:
         cinder = get_cinder_client() 
+        keep_count = keep_count or config["storage"]["max_snapshots_per_volume"]  # Predefined value
         snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
         snapshots_to_delete = sorted(snapshots, key=lambda s: s.created_at)[:-keep_count]
         for snapshot in snapshots_to_delete:
@@ -12,27 +16,23 @@ def clean_old_snapshots(volume_id, keep_count=3):
     except Exception as e:
         logging.error(f"Error cleaning snapshots: {e}")
 
-def enforce_storage_limits(volume_id, max_size_gb):
+def enforce_storage_limits(volume_id, max_size_gb=None):
     try:
         cinder = get_cinder_client()
+        max_size_gb = max_size_gb or config["storage"]["max_total_size_gb"]  # Predefined value
         snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
 
-        # Calculate total space used by snapshots
         total_size_gb = sum(snapshot.size for snapshot in snapshots)
         logging.info(f"Total size of snapshots for volume {volume_id}: {total_size_gb} GB")
 
-        # If the total size exceeds the maximum allowed, delete older snapshots
         if total_size_gb > max_size_gb:
             logging.warning(f"Snapshot storage for volume {volume_id} exceeds {max_size_gb} GB. Cleaning up older snapshots.")
-
-            # Sort snapshots by creation date (oldest first)
             snapshots_to_delete = sorted(snapshots, key=lambda s: s.created_at)
             for snapshot in snapshots_to_delete:
                 if total_size_gb <= max_size_gb:
-                    break  # Stop deleting if we're under the limit
+                    break
                 cinder.volume_snapshots.delete(snapshot.id)
                 total_size_gb -= snapshot.size
                 logging.info(f"Deleted snapshot {snapshot.id}. Remaining size: {total_size_gb} GB")
     except Exception as e:
         logging.error(f"Error enforcing storage limits for volume {volume_id}: {e}")
-

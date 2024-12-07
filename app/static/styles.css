@@ -14,11 +14,12 @@ h1 {
     color: #01110a;
 }
 
+/* Table Styles */
 .table {
-    background: #ffffff;
+    background: #ffffff; /* White background for the table */
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    color: #01110a;
+    color: #01110a; /* Dark text */
 }
 
 .table-hover tbody tr:hover {
@@ -29,103 +30,78 @@ h1 {
 .btn {
     border-radius: 5px;
     font-weight: 600;
-    color: #ffffff;
+    height: 38px; /* Uniform height for all buttons */
+    text-align: center;
 }
 
-/* Uniform button widths */
-.btn-fixed-width {
-    width: 100%; 
-}
-
+/* Primary Button (Create Snapshot) */
 .btn-primary {
-    background-color: #003e1f;
-    border-color: #003e1f;
+    background-color: #003E1F; /* Dark green */
+    border-color: #003E1F;
+    color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: #003e1f; /* No color change */
-    border-color: #003e1f; 
+    background-color: #004E29; /* Slightly lighter green */
+    border-color: #004E29;
 }
 
 .btn-primary:focus, .btn-primary:active {
-    background-color: #003e1f; /* No color change when clicked */
-    border-color: #003e1f;
+    background-color: #004E29;
+    border-color: #004E29;
     box-shadow: none; /* Remove focus outline */
 }
 
-.btn-warning {
-    background-color: #73ba9b;
-    border-color: #73ba9b;
-    color: #ffffff;
+/* Secondary Button (Clean Old Snapshots and Restore) */
+.btn-secondary {
+    background-color: #73BA9B; /* Light green */
+    border-color: #73BA9B;
+    color: #01110A; /* Dark text */
 }
 
-.btn-warning:hover {
-    background-color: #73ba9b; /* No color change */
-    border-color: #73ba9b; 
+.btn-secondary:hover {
+    background-color: #87C5AA; /* Slightly lighter green */
+    border-color: #87C5AA;
 }
 
-.btn-warning:focus, .btn-warning:active {
-    background-color: #73ba9b; /* No color change when clicked */
-    border-color: #73ba9b;
-    box-shadow: none; /* Remove focus outline */
+.btn-secondary:focus, .btn-secondary:active {
+    background-color: #87C5AA;
+    border-color: #87C5AA;
+    box-shadow: none;
 }
 
-.btn-success {
-    background-color: #003e1f;
-    border-color: #003e1f;
+/* Back Button */
+.btn-back {
+    background-color: #A2D7B9;
+    border-color: #A2D7B9;
+    color: #01110A; /* Dark text */
+    font-weight: 600;
+    padding: 10px 20px;
+    text-align: center;
 }
 
-.btn-success:hover {
-    background-color: #003e1f; /* No color change */
-    border-color: #003e1f; 
+.btn-back:hover {
+    background-color: #87C5AA; /* Slightly darker green */
+    border-color: #87C5AA;
+    color: #01110A;
 }
 
-.btn-success:focus, .btn-success:active {
-    background-color: #003e1f; /* No color change when clicked */
-    border-color: #003e1f;
-    box-shadow: none; /* Remove focus outline */
+.btn-back:focus, .btn-back:active {
+    background-color: #87C5AA;
+    border-color: #87C5AA;
+    box-shadow: none;
 }
 
 /* Alerts */
 .alert-danger {
-    background-color: #ba2d0b;
+    background-color: #BA2D0B;
     color: #ffffff;
-    border-color: #ba2d0b;
+    border-color: #BA2D0B;
 }
 
 .alert-success {
-    background-color: #73ba9b;
+    background-color: #73BA9B;
     color: #ffffff;
-    border-color: #73ba9b;
-}
-
-/* Text Colors for Status */
-.text-danger {
-    font-weight: bold;
-    color: #ba2d0b;
-}
-
-.text-success {
-    font-weight: bold;
-    color: #73ba9b;
-}
-
-/* New Styles for Alignment and Spacing */
-
-/* Ensure inputs and buttons in the same form have uniform height */
-form.d-flex.align-items-center > input, 
-form.d-flex.align-items-center > button {
-    height: 100%; /* Ensures all elements have the same height */
-    align-items: center;
-}
-
-/* Add consistent spacing around form elements */
-form.d-flex.align-items-center {
-    gap: 10px; /* Space between inputs and button */
-}
-
-/* Adjust spacing above and below forms */
-.mb-3 {
-    margin-bottom: 1.5rem; /* Consistent spacing under the form */
+    border-color: #73BA9B;
 }
 

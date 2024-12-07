@@ -16,7 +16,7 @@ def monitor_volumes():
                 snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume.id})
                 if snapshots:
                     latest_snapshot = sorted(snapshots, key=lambda s: s.created_at)[-1]
-                    restore_volume(volume.id, latest_snapshot.id)
+                    restore_volume(volume.id, latest_snapshot.id, f"restored-{volume.id}")
                     logging.info(f"Volume {volume.id} restored from the snapshot {latest_snapshot.id}")
 
         # Send email if there are volumes in error state

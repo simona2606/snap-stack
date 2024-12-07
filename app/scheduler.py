@@ -3,6 +3,9 @@ import os
 from monitor import monitor_volumes
 from client import get_cinder_client
 from notifications import logging
+from config import load_config
+
+config = load_config()
 
 def create_snapshot(volume_id):
     try:
@@ -27,9 +30,13 @@ def schedule_snapshots(volume_id, interval_minutes=60):
 def start_monitoring():
     try:
         scheduler = BackgroundScheduler()
-        scheduler.add_job(monitor_volumes, 'interval', minutes=2)  # Monitor every 2 minutes
+        scheduler.add_job(
+            monitor_volumes, 
+            'interval', 
+            minutes=config["monitoring"]["interval_minutes"]  # The interval from the configuration file
+        )
         scheduler.start()
-        logging.info("Started volume monitoring every 2 minutes.")
+        logging.info("Started volume monitoring.")
     except Exception as e:
         logging.error(f"Error starting volume monitoring: {e}")
         raise

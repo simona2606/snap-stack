@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from monitor import monitor_volumes
 from restore import restore_volume
 from scheduler import schedule_snapshots, start_monitoring
@@ -7,10 +7,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import os
 from client import get_cinder_client
 from notifications import logging, send_email
+from config import load_config, update_config
+import yaml
 
 # Initial configuration
 app = Flask(__name__)
 scheduler = BackgroundScheduler()
+
+config = load_config()
 
 # Function to create a snapshot 
 def create_snapshot(volume_id):
@@ -120,6 +124,40 @@ def restore(volume_id):
         message = (f"Error restoring volume {volume_id}: {e}", "danger")  # Error message
         return render_template('index.html', message=message)
 
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    message = None
+
+    if request.method == 'POST':
+        try:
+            # Raccogli i nuovi dati dal form
+            new_data = request.form.to_dict(flat=False)
+            
+            # Converti i dati in un formato accettabile
+            formatted_data = {}
+            for key, value in new_data.items():
+                section, subkey = key.split("[", 1)
+                subkey = subkey.rstrip("]")
+                if section not in formatted_data:
+                    formatted_data[section] = {}
+                formatted_data[section][subkey] = value[0]
+            
+            # Update the configuration
+            updated_config = update_config(formatted_data)
+            message = ("Settings updated successfully!", "success")
+        except Exception as e:
+            logging.error(f"Error updating settings: {str(e)}")
+            message = (f"Error updating settings: {str(e)}", "danger")
+
+    # View the configuration
+    try:
+        current_config = load_config()
+        return render_template("settings.html", config=current_config, message=message)
+    except Exception as e:
+        logging.error(f"Error loading settings: {str(e)}")
+        message = (f"Error loading settings: {str(e)}", "danger")
+        return render_template("settings.html", config={}, message=message)
+
 if __name__ == '__main__':
     try:
         # Starts volume monitoring in the background
@@ -127,7 +165,10 @@ if __name__ == '__main__':
 
         # Start the scheduler and the Flask app.
         scheduler.start()
-        app.run(host='0.0.0.0', port=5235)
+        app.run(
+            host=config["app"]["host"], 
+            port=config["app"]["port"]
+        )
     except Exception as e:
         logging.error(f"Error starting the application: {e}")
 
