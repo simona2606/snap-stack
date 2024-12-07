@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from monitor import monitor_volumes
 from restore import restore_volume
-from scheduler import schedule_snapshots, start_monitoring
+from scheduler import schedule_snapshots, start_combined_scheduler, start_monitoring
 from storage import clean_old_snapshots, enforce_storage_limits
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
@@ -160,8 +160,9 @@ def settings():
 
 if __name__ == '__main__':
     try:
-        # Starts volume monitoring in the background
-        start_monitoring()
+        # Start combined volume management and monitoring
+        start_combined_scheduler(scheduler)
+        start_monitoring(scheduler)
 
         # Start the scheduler and the Flask app.
         scheduler.start()
@@ -171,4 +172,3 @@ if __name__ == '__main__':
         )
     except Exception as e:
         logging.error(f"Error starting the application: {e}")
-
