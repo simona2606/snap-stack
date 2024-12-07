@@ -19,6 +19,12 @@ function install_flask_dependencies {
         echo "requirements.txt not found!"
         exit 1
     fi
+    
+    echo "Copying configuration file..."
+    sudo cp /home/ubuntu/snap-stack/app/config.yaml /opt/stack/snap-stack/app/config.yaml || {
+        echo "Failed to copy configuration file"
+        return 1
+    }
 
     # venv deactivation
     deactivate

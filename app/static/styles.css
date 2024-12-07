@@ -1,4 +1,4 @@
-/* Font and Base Colors */
+/* General Styles */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 body {
@@ -11,97 +11,120 @@ body {
 
 h1 {
     font-weight: 700;
-    color: #01110a;
+    color: #01110A;
 }
 
-/* Table Styles */
+/* Table */
 .table {
-    background: #ffffff; /* White background for the table */
+    background: #FFFFFF;
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    color: #01110a; /* Dark text */
+    color: #01110A;
 }
 
 .table-hover tbody tr:hover {
-    background: #f1f1f1;
+    background: #F1F1F1;
 }
 
 /* Buttons */
 .btn {
     border-radius: 5px;
     font-weight: 600;
-    height: 38px; /* Uniform height for all buttons */
+    height: 38px;
     text-align: center;
 }
 
-/* Primary Button (Create Snapshot) */
+/* Primary Button */
 .btn-primary {
-    background-color: #003E1F; /* Dark green */
+    background-color: #003E1F;
     border-color: #003E1F;
-    color: #ffffff;
+    color: #FFFFFF;
 }
 
-.btn-primary:hover {
-    background-color: #004E29; /* Slightly lighter green */
-    border-color: #004E29;
-}
-
-.btn-primary:focus, .btn-primary:active {
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
     background-color: #004E29;
     border-color: #004E29;
-    box-shadow: none; /* Remove focus outline */
 }
 
-/* Secondary Button (Clean Old Snapshots and Restore) */
+/* Secondary Button */
 .btn-secondary {
-    background-color: #73BA9B; /* Light green */
+    background-color: #73BA9B;
     border-color: #73BA9B;
-    color: #01110A; /* Dark text */
-}
-
-.btn-secondary:hover {
-    background-color: #87C5AA; /* Slightly lighter green */
-    border-color: #87C5AA;
-}
-
-.btn-secondary:focus, .btn-secondary:active {
-    background-color: #87C5AA;
-    border-color: #87C5AA;
-    box-shadow: none;
-}
-
-/* Back Button */
-.btn-back {
-    background-color: #A2D7B9;
-    border-color: #A2D7B9;
-    color: #01110A; /* Dark text */
-    font-weight: 600;
-    padding: 10px 20px;
-    text-align: center;
-}
-
-.btn-back:hover {
-    background-color: #87C5AA; /* Slightly darker green */
-    border-color: #87C5AA;
     color: #01110A;
 }
 
-.btn-back:focus, .btn-back:active {
+.btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active {
     background-color: #87C5AA;
     border-color: #87C5AA;
+}
+
+/* Align Buttons */
+.btn-group {
+    display: flex; /* Align buttons horizontally */
+    justify-content: center; /* Spread buttons evenly across */
+    gap: 10px; /* Add space between buttons */
+}
+
+.btn-group > .btn {
+    flex-basis: 1;
+    max-width: none;
+    text-align: center;
+}
+
+/* Settings Button */
+.btn-settings {
+    background-color: #D3D3D3; /* Light grey */
+    color: #01110A; /* Dark text */
+    font-weight: 600;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    height: 40px; /* Uniform height */
+    display: flex;
+    align-items: center; /* Vertical centering */
+    justify-content: center; /* Horizontal centering */
+}
+
+.btn-settings:hover {
+    background-color: #C0C0C0;
+}
+
+.btn-settings:focus, .btn-settings:active {
+    background-color: #C0C0C0;
     box-shadow: none;
+}
+
+/* Show Button */
+.btn-show {
+    background-color: #A2D7B9;
+    border-color: #A2D7B9;
+    color: #01110A;
+}
+
+.btn-show:hover, .btn-show:focus, .btn-show:active {
+    background-color: #87C5AA;
+}
+
+/* Back to Main Page */
+.btn-back {
+    background-color: #A2D7B9;
+    border-color: #A2D7B9;
+    color: #01110A;
+    padding: 8px 20px;
+}
+
+.btn-back:hover, .btn-back:focus, .btn-back:active {
+    background-color: #87C5AA;
 }
 
 /* Alerts */
 .alert-danger {
     background-color: #BA2D0B;
-    color: #ffffff;
-    border-color: #BA2D0B;
+    color: #FFFFFF;
 }
 
 .alert-success {
     background-color: #73BA9B;
-    color: #ffffff;
-    border-color: #73BA9B;
+    color: #FFFFFF;
 }
-

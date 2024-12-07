@@ -23,7 +23,7 @@
         {% endif %}
 
         <!-- Settings Button -->
-        <div class="d-flex justify-content-end mb-3">
+        <div class="d-flex justify-content-end align-items-center mb-3">
             <a href="/settings" class="btn btn-settings">Settings</a>
         </div>
 
@@ -51,18 +51,13 @@
                     <td>
                         <!-- Action Buttons -->
                         <div class="btn-group mb-3">
-                            <!-- Button Clean Old Snapshots -->
                             <form action="/clean/{{ volume.id }}" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-secondary">Clean Old Snapshots</button>
                             </form>
-
-                            <!-- Button Restore -->
                             <form action="/restore/{{ volume.id }}" method="get" class="d-inline">
                                 <button type="submit" class="btn btn-secondary">Restore</button>
                             </form>
                         </div>
-
-                        <!-- Button Create Snapshot -->
                         <form action="/snapshot/{{ volume.id }}" method="post" class="d-flex justify-content-center">
                             <button type="submit" class="btn btn-primary">Create Snapshot</button>
                         </form>
