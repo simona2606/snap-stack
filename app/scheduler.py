@@ -117,11 +117,10 @@ def monitor_and_restore_volumes():
     except Exception as e:
         logging.error(f"Error during monitoring and restoring volumes: {e}")
 
-def start_scheduler():
+def start_scheduler(scheduler):
     """
     Start the scheduler for periodic tasks.
     """
-    scheduler = BackgroundScheduler()
     try:
         # Schedule global snapshot creation
         schedule_snapshot_jobs(scheduler)
@@ -142,3 +141,31 @@ def start_scheduler():
     except Exception as e:
         logging.error(f"Error starting the scheduler: {e}")
         scheduler.shutdown()
+
+def update_jobs(scheduler):
+    """
+    Update all scheduled jobs based on the updated configuration.
+    """
+    try:
+        # Load updated configuration
+        config = load_config()
+
+        # Remove existing jobs
+        for job in scheduler.get_jobs():
+            scheduler.remove_job(job.id)
+        logging.info("All existing jobs removed.")
+
+        # Recreate jobs with updated configuration
+        schedule_snapshot_jobs(scheduler)
+        monitoring_interval = int(config["monitoring"].get("monitoring_interval_minutes", 3))
+        scheduler.add_job(
+            func=monitor_and_restore_volumes,
+            trigger='interval',
+            minutes=monitoring_interval,
+            id="monitor_and_restore_volumes",
+            replace_existing=True
+        )
+        logging.info("Jobs recreated with updated configuration.")
+
+    except Exception as e:
+        logging.error(f"Error updating jobs: {e}")

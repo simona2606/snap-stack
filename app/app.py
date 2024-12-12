@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from monitor import monitor_volumes
 from restore import restore_volume
-from scheduler import start_scheduler
+from scheduler import start_scheduler, update_jobs, create_snapshot 
 from storage import clean_old_snapshots, enforce_storage_limits
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
@@ -14,25 +14,7 @@ import yaml
 app = Flask(__name__)
 config = load_config()
 
-# Function to create a snapshot 
-def create_snapshot(volume_id):
-    try:
-        cinder = get_cinder_client()
-        snapshot = cinder.volume_snapshots.create(volume_id, name=f'snapshot-{volume_id}')
-        logging.info(f"Snapshot created for volume {volume_id}: {snapshot.id}")
-        return snapshot.id
-    except Exception as e:
-        logging.error(f"Error creating snapshot for volume {volume_id}: {e}")
-        raise
-
-# Function to rotate old snapshots
-def clean_snapshots(volume_id, keep_count):
-    try:
-        clean_old_snapshots(volume_id, keep_count=keep_count)
-        logging.info("Old Snapshots successfully cleaned!")
-    except Exception as e:
-        logging.error(f"Error cleaning old snapshots for volume {volume_id}: {e}")
-        raise
+scheduler = BackgroundScheduler()
 
 # Main endpoint: list all volumes
 @app.route('/')
@@ -51,11 +33,11 @@ def index():
 @app.route('/snapshot/<volume_id>', methods=['POST'])
 def snapshot(volume_id):
     try:
-        create_snapshot(volume_id)
+        create_snapshot(volume_id)  
         logging.info("Snapshot created successfully!")
         message = ("Snapshot created successfully!", "success")  # Success message
     except Exception as e:
-        logging.error("Error creating snapshot for volume {volume_id}: {e}")
+        logging.error(f"Error creating snapshot for volume {volume_id}: {e}")
         message = (f"Error creating snapshot for volume {volume_id}: {e}", "danger")  # Error message
 
     cinder = get_cinder_client()
@@ -73,7 +55,7 @@ def clean(volume_id):
         enforce_storage_limits(volume_id, max_size_gb)
         
         # Clean old snapshots by count
-        clean_snapshots(volume_id, keep_count=keep_count)
+        clean_old_snapshots(volume_id, keep_count=keep_count)  # Usa direttamente la funzione importata
         
         logging.info("Old snapshots cleaned successfully!")
         message = ("Old snapshots cleaned successfully!", "success")  # Success message
@@ -128,10 +110,10 @@ def settings():
 
     if request.method == 'POST':
         try:
-            # Raccogli i nuovi dati dal form
+            # Take new value from the form
             new_data = request.form.to_dict(flat=False)
             
-            # Converti i dati in un formato accettabile
+            # Convert data 
             formatted_data = {}
             for key, value in new_data.items():
                 section, subkey = key.split("[", 1)
@@ -143,6 +125,10 @@ def settings():
             # Update the configuration
             updated_config = update_config(formatted_data)
             message = ("Settings updated successfully!", "success")
+
+            # Update jobs scheduler with new values
+            update_jobs(scheduler)
+
         except Exception as e:
             logging.error(f"Error updating settings: {str(e)}")
             message = (f"Error updating settings: {str(e)}", "danger")
@@ -158,7 +144,7 @@ def settings():
 
 if __name__ == '__main__':
     try:
-        start_scheduler()
+        start_scheduler(scheduler)
 
         app.run(
             host=config["app"]["host"], 
