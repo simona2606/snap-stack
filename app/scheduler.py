@@ -3,6 +3,7 @@ from client import get_cinder_client
 from notifications import logging, send_email
 from config import load_config
 from restore import restore_volume
+from storage import clean_old_snapshots, enforce_storage_limits
 
 # Load configuration
 config = load_config()
@@ -41,6 +42,10 @@ def schedule_snapshot_jobs(scheduler):
                     return
 
                 for volume in volumes:
+                    if volume.description and "error_handled" in volume.description:
+                        logging.info(f"Skipping snapshot creation for volume {volume.id} as it is marked as handled.")
+                        continue
+
                     logging.info(f"Creating snapshot for volume {volume.id}.")
                     create_snapshot(volume.id)
 
@@ -61,24 +66,48 @@ def schedule_snapshot_jobs(scheduler):
 
 def monitor_and_restore_volumes():
     """
-    Monitor volumes for errors, send notifications, and restore from the latest snapshot if needed.
+    Monitor volumes for errors, snapshots, send notifications, restore from the latest snapshot if needed,
+    and mark volumes in error state as handled after restoration.
     """
     try:
         cinder = get_cinder_client()
         error_volumes = []  # To store volumes in error state
 
         for volume in cinder.volumes.list():
+            logging.info(f"Checking volume {volume.id}: status={volume.status}, description={volume.description}")
+
+            # Skip volumes already marked as handled
+            if volume.description and "error_handled" in volume.description:
+                logging.info(f"Skipping volume {volume.id} as it is already marked as handled.")
+                continue
+
+            # Retrieve and count snapshots for the volume
+            snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume.id})
+            snapshot_count = len(snapshots)
+            logging.info(f"Volume {volume.id} has {snapshot_count} snapshots.")
+
+            # Enforce snapshot limits (max count and max total size)
+            clean_old_snapshots(volume.id, keep_count=config["storage"]["max_snapshots_per_volume"])
+            enforce_storage_limits(volume.id, max_size_gb=config["storage"]["max_total_size_gb"])
+
+            # Check if the volume is in error state
             if volume.status == 'error':
                 logging.warning(f"Volume {volume.id} in error state.")
                 error_volumes.append(volume)
 
-                # Find the last snapshot for the volume
-                snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume.id})
+                # Restore volume from the latest snapshot
                 if snapshots:
                     latest_snapshot = sorted(snapshots, key=lambda s: s.created_at)[-1]
                     restored_name = f"restored-{volume.id}"
                     restore_volume(volume.id, latest_snapshot.id, restored_name)
                     logging.info(f"Volume {volume.id} restored from the snapshot {latest_snapshot.id}.")
+
+                    # Mark the volume as handled
+                    try:
+                        cinder.volumes.update(volume.id, description="error_handled")
+                        logging.info(f"Volume {volume.id} marked as handled.")
+                    except Exception as e:
+                        logging.error(f"Failed to update volume {volume.id} description: {e}")
 
         # Send email if there are volumes in error state
         if error_volumes:
