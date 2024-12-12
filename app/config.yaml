@@ -6,9 +6,10 @@ app:
 storage:
   max_snapshots_per_volume: 3
   max_total_size_gb: 50
+  snapshot_interval_minutes: 2
 
 monitoring:
-  interval_minutes: 2
+  monitoring_interval_minutes: 3
 
 email:
   smtp_server: "smtp.gmail.com"
@@ -16,3 +17,4 @@ email:
   sender_email: "simonaTest23@gmail.com"
   app_password: "rqsj obct otjo vcsh"
   recipient_email: "simonaettari@libero.it"
+

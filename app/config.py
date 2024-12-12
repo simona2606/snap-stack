@@ -21,9 +21,10 @@ DEFAULT_CONFIG = {
     "storage": {
         "max_snapshots_per_volume": 3,
         "max_total_size_gb": 50,
+        "snapshot_interval_minutes": 2
     },
     "monitoring": {
-        "interval_minutes": 2
+        "monitoring_interval_minutes": 3
     }
 }
 
@@ -75,3 +76,4 @@ def update_config(new_data):
         return current_config
     except Exception as e:
         raise Exception(f"Error updating configuration: {e}")
+

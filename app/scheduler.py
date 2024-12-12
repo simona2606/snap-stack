@@ -1,43 +1,11 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from monitor import monitor_volumes
 from client import get_cinder_client
-from notifications import logging
+from notifications import logging, send_email
 from config import load_config
-from storage import enforce_storage_limits, clean_old_snapshots
+from restore import restore_volume
 
 # Load configuration
 config = load_config()
-
-def combined_volume_management():
-    """
-    Monitor volumes and manage snapshots (enforce storage limits and clean old snapshots).
-    """
-    try:
-        cinder = get_cinder_client()
-
-        # Monitor volume states
-        logging.info("Starting volume monitoring.")
-        monitor_volumes()
-
-        # Manage snapshots for each volume
-        volumes = cinder.volumes.list()
-        if not volumes:
-            logging.warning("No volumes found for snapshot management.")
-            return
-
-        for volume in volumes:
-            volume_id = volume.id
-            logging.info(f"Managing snapshots for volume {volume_id}.")
-
-            # Enforce storage limits
-            enforce_storage_limits(volume_id)
-
-            # Clean old snapshots
-            clean_old_snapshots(volume_id)
-
-        logging.info("Combined volume management completed successfully.")
-    except Exception as e:
-        logging.error(f"Error in combined volume management: {e}")
 
 def create_snapshot(volume_id):
     """
@@ -52,53 +20,96 @@ def create_snapshot(volume_id):
         logging.error(f"Error creating snapshot for volume {volume_id}: {e}")
         raise
 
-def start_combined_scheduler(scheduler):
+def schedule_snapshot_jobs(scheduler):
     """
-    Start the scheduler for combined volume monitoring and snapshot management.
+    Schedule a global job to create snapshots for all volumes periodically.
     """
     try:
-        interval_minutes = int(config["storage"].get("interval_minutes", 2))  # Default: 2 minutes
+        logging.info("Starting global snapshot job scheduling.")
+
+        interval_minutes = int(config["storage"].get("snapshot_interval_minutes", 2))
+        logging.info(f"Global snapshot interval: {interval_minutes} minutes.")
+
+        # Schedule a single job to handle snapshot creation for all volumes
+        def create_snapshots_for_all_volumes():
+            try:
+                cinder = get_cinder_client()
+                volumes = cinder.volumes.list()
+
+                if not volumes:
+                    logging.warning("No volumes available for snapshot creation at this time.")
+                    return
+
+                for volume in volumes:
+                    logging.info(f"Creating snapshot for volume {volume.id}.")
+                    create_snapshot(volume.id)
+
+            except Exception as e:
+                logging.error(f"Error in global snapshot job: {e}")
+
         scheduler.add_job(
-            func=combined_volume_management,
+            func=create_snapshots_for_all_volumes,
             trigger='interval',
             minutes=interval_minutes,
-            id="combined_volume_management",
+            id="global_snapshot_job",
             replace_existing=True
         )
-        logging.info(f"Combined volume management job scheduled every {interval_minutes} minutes.")
-    except Exception as e:
-        logging.error(f"Error scheduling combined volume management: {e}")
+        logging.info("Global snapshot job scheduled successfully.")
 
-def schedule_snapshots(scheduler, volume_id, interval_minutes=60):
+    except Exception as e:
+        logging.error(f"Error scheduling global snapshot job: {e}")
+
+def monitor_and_restore_volumes():
     """
-    Schedule periodic snapshots for a specific volume.
+    Monitor volumes for errors, send notifications, and restore from the latest snapshot if needed.
     """
     try:
+        cinder = get_cinder_client()
+        error_volumes = []  # To store volumes in error state
+
+        for volume in cinder.volumes.list():
+            if volume.status == 'error':
+                logging.warning(f"Volume {volume.id} in error state.")
+                error_volumes.append(volume)
+
+                # Find the last snapshot for the volume
+                snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume.id})
+                if snapshots:
+                    latest_snapshot = sorted(snapshots, key=lambda s: s.created_at)[-1]
+                    restored_name = f"restored-{volume.id}"
+                    restore_volume(volume.id, latest_snapshot.id, restored_name)
+                    logging.info(f"Volume {volume.id} restored from the snapshot {latest_snapshot.id}.")
+
+        # Send email if there are volumes in error state
+        if error_volumes:
+            email_body = "\n".join([f"Volume {v.id} in error state and restored." for v in error_volumes])
+            send_email("Volume Error and Restore Notification", email_body)
+
+    except Exception as e:
+        logging.error(f"Error during monitoring and restoring volumes: {e}")
+
+def start_scheduler():
+    """
+    Start the scheduler for periodic tasks.
+    """
+    scheduler = BackgroundScheduler()
+    try:
+        # Schedule global snapshot creation
+        schedule_snapshot_jobs(scheduler)
+
+        # Schedule monitoring and restore
+        monitoring_interval = int(config["monitoring"].get("monitoring_interval_minutes", 3))
         scheduler.add_job(
-            func=lambda: create_snapshot(volume_id),
+            func=monitor_and_restore_volumes,
             trigger='interval',
-            minutes=interval_minutes,
-            id=f"snapshot_{volume_id}",
+            minutes=monitoring_interval,
+            id="monitor_and_restore_volumes",
             replace_existing=True
         )
-        logging.info(f"Snapshot scheduling started for volume {volume_id} every {interval_minutes} minutes.")
-    except Exception as e:
-        logging.error(f"Error scheduling snapshots for volume {volume_id}: {e}")
-        raise
+        logging.info("Scheduled monitoring and restore job.")
 
-def start_monitoring(scheduler):
-    """
-    Start the scheduler for volume monitoring.
-    """
-    try:
-        scheduler.add_job(
-            monitor_volumes,
-            'interval',
-            minutes=config["monitoring"]["interval_minutes"],  # Interval from configuration
-            id="monitor_volumes",
-            replace_existing=True
-        )
-        logging.info("Started volume monitoring.")
+        scheduler.start()
+        logging.info("Scheduler started.")
     except Exception as e:
-        logging.error(f"Error starting volume monitoring: {e}")
-        raise
+        logging.error(f"Error starting the scheduler: {e}")
+        scheduler.shutdown()
