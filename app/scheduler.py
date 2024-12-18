@@ -4,19 +4,47 @@ from notifications import logging, send_email
 from config import load_config
 from restore import restore_volume
 from storage import clean_old_snapshots, enforce_storage_limits
-
-# Load configuration
-config = load_config()
+import time
 
 def create_snapshot(volume_id):
     """
-    Create a snapshot for the given volume.
+    Create a snapshot for the given volume, enforcing limits proactively.
     """
     try:
         cinder = get_cinder_client()
+        config = load_config()
+        max_snapshots = int(config["storage"]["max_snapshots_per_volume"])
+        retry_count = 3  # Number of retries after cleanup
+        
+        for attempt in range(retry_count):
+            # List snapshots
+            snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
+            logging.info(f"Volume {volume_id} has {len(snapshots)} snapshots. Max allowed: {max_snapshots}")
+
+            if len(snapshots) < max_snapshots:
+                # Create the snapshot if under the limit
+                snapshot = cinder.volume_snapshots.create(volume_id, name=f'snapshot-{volume_id}')
+                logging.info(f"Snapshot created for volume {volume_id}: {snapshot.id}")
+                return snapshot.id
+
+            # If snapshot limit is reached, clean old snapshots
+            logging.info(f"Reached snapshot limit for volume {volume_id}. Cleaning old snapshots.")
+            clean_old_snapshots(volume_id, keep_count=max_snapshots - 1)
+
+            # Wait a short period to allow API to propagate changes
+            logging.info("Waiting for API to propagate snapshot deletions...")
+            time.sleep(2)
+
+        # Final check after retries
+        snapshots = cinder.volume_snapshots.list(search_opts={'volume_id': volume_id})
+        if len(snapshots) >= max_snapshots:
+            raise Exception(f"Unable to reduce snapshots to below the maximum limit for volume {volume_id}")
+
+        # Create a new snapshot
         snapshot = cinder.volume_snapshots.create(volume_id, name=f'snapshot-{volume_id}')
         logging.info(f"Snapshot created for volume {volume_id}: {snapshot.id}")
         return snapshot.id
+
     except Exception as e:
         logging.error(f"Error creating snapshot for volume {volume_id}: {e}")
         raise
@@ -27,6 +55,8 @@ def schedule_snapshot_jobs(scheduler):
     """
     try:
         logging.info("Starting global snapshot job scheduling.")
+
+        config = load_config()
 
         interval_minutes = int(config["storage"].get("snapshot_interval_minutes", 2))
         logging.info(f"Global snapshot interval: {interval_minutes} minutes.")
@@ -72,6 +102,8 @@ def monitor_and_restore_volumes():
     try:
         cinder = get_cinder_client()
         error_volumes = []  # To store volumes in error state
+
+        config = load_config()
 
         for volume in cinder.volumes.list():
             logging.info(f"Checking volume {volume.id}: status={volume.status}, description={volume.description}")
@@ -122,6 +154,8 @@ def start_scheduler(scheduler):
     Start the scheduler for periodic tasks.
     """
     try:
+        config = load_config()
+
         # Schedule global snapshot creation
         schedule_snapshot_jobs(scheduler)
 
@@ -169,3 +203,4 @@ def update_jobs(scheduler):
 
     except Exception as e:
         logging.error(f"Error updating jobs: {e}")
+

@@ -58,17 +58,17 @@ h1 {
     border-color: #87C5AA;
 }
 
-/* Align Buttons */
-.btn-group {
-    display: flex; /* Align buttons horizontally */
-    justify-content: center; /* Spread buttons evenly across */
-    gap: 10px; /* Add space between buttons */
+.button-container {
+    gap: 10px; /* Adds vertical space between buttons */
 }
 
-.btn-group > .btn {
-    flex-basis: 1;
-    max-width: none;
-    text-align: center;
+.button-container form {
+    margin: 0; /* Ensures no default margins on forms */
+}
+
+.button-container button {
+    width: 100%; /* Ensures buttons take the full width */
+    text-align: center; /* Centers text inside buttons */
 }
 
 /* Settings Button */
@@ -128,3 +128,4 @@ h1 {
     background-color: #73BA9B;
     color: #FFFFFF;
 }
+

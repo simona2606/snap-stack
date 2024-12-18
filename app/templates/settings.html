@@ -13,11 +13,18 @@
 
         <!-- Feedback Message -->
         {% if message %}
-        <div class="alert alert-{{ message[1] }} alert-dismissible fade show text-center" role="alert">
-            {{ message[0] }}
+        <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+            {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
+
+	<script>
+    	    if (window.location.search) {
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+	</script>
 
         <h1 class="text-center mb-4">Settings</h1>
 

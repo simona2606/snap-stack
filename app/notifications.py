@@ -3,9 +3,6 @@ import smtplib
 from email.message import EmailMessage
 from config import load_config
 
-config = load_config()
-EMAIL_SETTINGS = config["email"]
-
 # Logger Configuration
 logging.basicConfig(
     level=logging.INFO,
@@ -18,13 +15,15 @@ logging.basicConfig(
 
 def send_email(subject, body, recipient=None):
     try:
-        recipient = recipient or EMAIL_SETTINGS["recipient_email"]
+        config = load_config()
+        email_settings = config["email"]
 
-        # Usa i parametri di configurazione per la connessione SMTP
-        smtp_server = EMAIL_SETTINGS["smtp_server"]
-        smtp_port = EMAIL_SETTINGS["smtp_port"]
-        gmail_user = EMAIL_SETTINGS["sender_email"]
-        gmail_password = EMAIL_SETTINGS["app_password"]
+        recipient = recipient or email_settings["recipient_email"]
+
+        smtp_server = email_settings["smtp_server"]
+        smtp_port = email_settings["smtp_port"]
+        gmail_user = email_settings["sender_email"]
+        gmail_password = email_settings["app_password"]
 
         msg = EmailMessage()
         msg.set_content(body)

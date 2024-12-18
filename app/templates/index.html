@@ -16,11 +16,19 @@
 
         <!-- Feedback Message -->
         {% if message %}
-        <div class="alert alert-{{ message[1] }} alert-dismissible fade show text-center" role="alert">
-            {{ message[0] }}
+        <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+            {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
+	
+	<script>
+    	    // Delete parameters of query string from the URL after refresh the page
+            if (window.location.search) {
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+	    }
+	</script>
 
         <!-- Settings Button -->
         <div class="d-flex justify-content-end align-items-center mb-3">
@@ -49,19 +57,15 @@
                         {{ volume.status }}
                     </td>
                     <td>
-                        <!-- Action Buttons -->
-                        <div class="btn-group mb-3">
-                            <form action="/clean/{{ volume.id }}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-secondary">Clean Old Snapshots</button>
-                            </form>
-                            <form action="/restore/{{ volume.id }}" method="get" class="d-inline">
-                                <button type="submit" class="btn btn-secondary">Restore</button>
-                            </form>
-                        </div>
-                        <form action="/snapshot/{{ volume.id }}" method="post" class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary">Create Snapshot</button>
-                        </form>
-                    </td>
+                    	<div class="button-container d-flex flex-column align-items-stretch">
+        		    <form action="/restore/{{ volume.id }}" method="get" class="mb-2">
+            		        <button type="submit" class="btn btn-secondary w-100">Restore</button>
+        		    </form>
+        		    <form action="/snapshot/{{ volume.id }}" method="post">
+           		        <button type="submit" class="btn btn-primary w-100">Create Snapshot</button>
+        		    </form>
+    			</div>
+		    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -82,4 +86,3 @@
     </script>
 </body>
 </html>
-
