@@ -4,7 +4,7 @@ Snap Stack is an advanced plugin for OpenStack that automates snapshot managemen
 
 ## Prerequisites
 
-To use Snap Stack, you must have **DevStack** installed. The official instructions for installing it properly are as follows:
+To use Snap Stack, it is necessary to have **DevStack** installed. The official instructions for installing it properly are as follows:
 
 - [DevStack Installation Guide](https://docs.openstack.org/devstack/latest/)
 
