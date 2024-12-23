@@ -34,7 +34,7 @@ To enable Snap Stack you must add the following snippet to the `local.conf` file
 ```bash
 [[local|localrc]]
    ...
-enable_plugin snap-stack https://github.com/tuo-username/snap-stack.git main
+enable_plugin snap-stack https://github.com/your-username/snap-stack.git main
 ```
 
 ### 2. Start the installation script
