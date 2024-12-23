@@ -1,26 +1,26 @@
 # Snap Stack - OpenStack Plugin
 
-Snap Stack è un plugin avanzato per OpenStack che automatizza la gestione degli snapshot e il ripristino dei volumi. Offre una soluzione scalabile e configurabile per migliorare la resilienza dei volumi e ottimizzare l'uso dello storage.
+Snap Stack is an advanced plugin for OpenStack that automates snapshot management and volume recovery. It offers a scalable and configurable solution to improve volume resiliency and optimize storage utilization.
 
-## Prerequisiti
+## Prerequisites
 
-Per utilizzare Snap Stack, è necessario avere **DevStack** installato. Le istruzioni ufficiali per installarlo correttamente sono le seguenti:
+To use Snap Stack, you must have **DevStack** installed. The official instructions for installing it properly are as follows:
 
-- [Guida all'installazione di DevStack](https://docs.openstack.org/devstack/latest/)
+- [DevStack Installation Guide](https://docs.openstack.org/devstack/latest/)
 
-## Funzionalità Principali
+## Main Features
 
-- **Automazione degli snapshot**: Creazione pianificata di snapshot a intervalli definiti.
-- **Monitoraggio continuo**: Controllo dello stato dei volumi con rilevazione di anomalie.
-- **Ripristino automatico**: Recupero rapido dei volumi utilizzando l'ultimo snapshot valido.
-- **Ottimizzazione dello storage**: Gestione degli snapshot obsoleti per un uso efficiente delle risorse.
-- **Notifiche in tempo reale**: Email per avvisare gli amministratori di eventuali errori o attività importanti.
+- **Snapshot automation**: Scheduled creation of snapshots at defined intervals.
+- **Continuous monitoring**: Monitoring the status of volumes with detection of anomalies.
+- **Automatic recovery**: Quick recovery of volumes using the last valid snapshot.
+- **Storage optimization**: Management of obsolete snapshots for efficient use of resources.
+- **Real-time notifications**: Emails to alert administrators of any errors or important tasks.
 
-## Istruzioni per l'Installazione
+## Installation Instructions
 
-### 1. Configurare `local.conf`
+### 1. Configure `local.conf`
 
-Per abilitare Snap Stack bisogna aggiungere il seguente snippet al file `local.conf` dell'installazione di DevStack:
+To enable Snap Stack you must add the following snippet to the `local.conf` file of your DevStack installation:
 
 ```bash
 [[local|localrc]]
@@ -28,19 +28,19 @@ Per abilitare Snap Stack bisogna aggiungere il seguente snippet al file `local.c
 enable_plugin snap-stack https://github.com/tuo-username/snap-stack.git main
 ```
 
-### 2. Avviare lo script di installazione
+### 2. Start the installation script
 
-Eseguire lo script stack.sh per configurare l'ambiente DevStack e includere Snap Stack:
+Run the stack.sh script to configure the DevStack environment and include Snap Stack:
 ```bash
 ./stack.sh
 ```
 
-Una volta completato, Snap Stack sarà pronto per essere utilizzato.
+Once completed, Snap Stack will be ready for use.
 
-### 3. Accedere all'interfaccia
+### 3. Accessing the interface
 
-Dopo l'installazione, è possibile accedere a Snap Stack visitando:
+After installation, Snap Stack can be accessed by visiting:
 ```bash
 http://<devstack_host>:5235
 ```
-Da qui si possono gestire i volumi, pianificare snapshot e configurare il sistema.
+From here you can manage volumes, schedule snapshots, and configure the system.
