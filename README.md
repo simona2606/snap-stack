@@ -21,6 +21,10 @@ To use Snap Stack, you must have **DevStack** installed. The official instructio
 - **Flask:** Lightweight micro web framework written in Python. It provides the foundation for creating Snap Stack's user-friendly interface.
 - **APScheduler:** A Python library for scheduling tasks. Used to automate the creation of snapshots and other time-based operations.
 
+## Workflow
+
+![Snap Stack Workflow](images/workflow.png "Snap Stack Workflow")
+
 ## Installation Instructions
 
 ### 1. Configure `local.conf`
@@ -52,3 +56,4 @@ From here you can manage volumes, schedule snapshots, and configure the system.
 
 ## Preview
 
+![Volume Management Interface](images/homepage_snapstack.png "Volume Management Interface")
