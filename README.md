@@ -16,6 +16,11 @@ To use Snap Stack, you must have **DevStack** installed. The official instructio
 - **Storage optimization**: Management of obsolete snapshots for efficient use of resources.
 - **Real-time notifications**: Emails to alert administrators of any errors or important tasks.
 
+## Used Technologies
+
+- **Flask:** Lightweight micro web framework written in Python. It provides the foundation for creating Snap Stack's user-friendly interface.
+- **APScheduler:** A Python library for scheduling tasks. Used to automate the creation of snapshots and other time-based operations.
+
 ## Installation Instructions
 
 ### 1. Configure `local.conf`
@@ -44,3 +49,6 @@ After installation, Snap Stack can be accessed by visiting:
 http://<devstack_host>:5235
 ```
 From here you can manage volumes, schedule snapshots, and configure the system.
+
+## Preview
+
