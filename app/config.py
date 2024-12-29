@@ -14,8 +14,6 @@ DEFAULT_CONFIG = {
     "email": {
         "smtp_server": "smtp.gmail.com",
         "smtp_port": 587,
-        "sender_email": "simonaTest23@gmail.com",
-        "app_password": "rqsj obct otjo vcsh",
         "recipient_email": "simonaettari@libero.it"
     },
     "storage": {

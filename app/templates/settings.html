@@ -19,12 +19,12 @@
         </div>
         {% endif %}
 
-	<script>
-    	    if (window.location.search) {
+        <script>
+            if (window.location.search) {
                 const newUrl = window.location.origin + window.location.pathname;
                 window.history.replaceState({}, document.title, newUrl);
             }
-	</script>
+        </script>
 
         <h1 class="text-center mb-4">Settings</h1>
 
@@ -33,34 +33,19 @@
             <h3>{{ section.capitalize() }}</h3>
             <div class="card p-3 mb-4 shadow-sm">
                 {% for key, value in options.items() %}
+                {% if section == 'email' and key in ['sender_email', 'app_password'] %}
+                <!-- Skip sender_email and app_password -->
+                {% else %}
                 <div class="mb-3">
                     <label for="{{ section }}_{{ key }}" class="form-label">{{ key.replace('_', ' ').capitalize() }}</label>
-                    {% if "password" in key.lower() %}
-                    <!-- Password field with Show/Hide button -->
-                    <div class="input-group">
-                        <input 
-                            type="password" 
-                            class="form-control" 
-                            id="{{ section }}_{{ key }}" 
-                            name="{{ section }}[{{ key }}]" 
-                            value="{{ value }}">
-                        <button 
-                            type="button" 
-                            class="btn btn-show" 
-                            onclick="togglePasswordVisibility('{{ section }}_{{ key }}')">
-                            Show
-                        </button>
-                    </div>
-                    {% else %}
-                    <!-- Regular field -->
                     <input 
                         type="text" 
                         class="form-control" 
                         id="{{ section }}_{{ key }}" 
                         name="{{ section }}[{{ key }}]" 
                         value="{{ value }}">
-                    {% endif %}
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
             {% endfor %}
@@ -84,20 +69,6 @@
                 alert.classList.add('fade');
                 setTimeout(() => alert.remove(), 150); // Allow fade animation
             }, 5000);
-        }
-
-        // Function to toggle password visibility
-        function togglePasswordVisibility(inputId) {
-            const input = document.getElementById(inputId);
-            const button = input.nextElementSibling;
-
-            if (input.type === "password") {
-                input.type = "text";
-                button.textContent = "Hide";
-            } else {
-                input.type = "password";
-                button.textContent = "Show";
-            }
         }
     </script>
 </body>

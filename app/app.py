@@ -133,7 +133,6 @@ def settings():
 
             # Update the configuration
             update_config(formatted_data)
-            update_jobs(scheduler)
 
             message = "Settings updated successfully!"
             category = "success"

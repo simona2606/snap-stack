@@ -2,6 +2,7 @@ import logging
 import smtplib
 from email.message import EmailMessage
 from config import load_config
+import os
 
 # Logger Configuration
 logging.basicConfig(
@@ -16,26 +17,29 @@ logging.basicConfig(
 def send_email(subject, body, recipient=None):
     try:
         config = load_config()
-        email_settings = config["email"]
 
-        recipient = recipient or email_settings["recipient_email"]
+        # Load sender email and password from environment variables
+        sender_email = os.getenv('EMAIL_SENDER')
+        app_password = os.getenv('EMAIL_APP_PASSWORD')
 
-        smtp_server = email_settings["smtp_server"]
-        smtp_port = email_settings["smtp_port"]
-        gmail_user = email_settings["sender_email"]
-        gmail_password = email_settings["app_password"]
+        # Use recipient from the configuration or default to one passed explicitly
+        recipient = recipient or config["email"]["recipient_email"]
+
+        smtp_server = config["email"]["smtp_server"]
+        smtp_port = config["email"]["smtp_port"]
 
         msg = EmailMessage()
         msg.set_content(body)
         msg['Subject'] = subject
-        msg['From'] = gmail_user
+        msg['From'] = sender_email
         msg['To'] = recipient
 
         with smtplib.SMTP(smtp_server, smtp_port) as smtp:
             smtp.starttls()
-            smtp.login(gmail_user, gmail_password)
+            smtp.login(sender_email, app_password)
             smtp.send_message(msg)
 
         logging.info(f"Email sent to {recipient} with subject: {subject}")
     except Exception as e:
         logging.error(f"Error in sending the email: {e}")
+
