@@ -116,7 +116,6 @@ def restore(volume_id):
         return redirect(url_for('index', message=message, category=category))
 
 @app.route('/settings', methods=['GET', 'POST'])
-@app.route('/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == 'POST':
         try:
@@ -168,3 +167,4 @@ if __name__ == '__main__':
         )
     except Exception as e:
         logging.error(f"Error starting the application: {e}")
+

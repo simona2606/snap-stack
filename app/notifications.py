@@ -39,4 +39,3 @@ def send_email(subject, body, recipient=None):
         logging.info(f"Email sent to {recipient} with subject: {subject}")
     except Exception as e:
         logging.error(f"Error in sending the email: {e}")
-
