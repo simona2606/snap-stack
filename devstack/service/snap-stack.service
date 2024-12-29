@@ -6,8 +6,9 @@ After=network.target
 User=stack
 Type=simple
 WorkingDirectory=/opt/stack/snap-stack
-ExecStart=/opt/stack/snap-stack/app/venv/bin/python3 /opt/stack/snap-stack/app/app.py
+ExecStart=/bin/bash -c "source /opt/stack/devstack/openrc admin admin && /opt/stack/snap-stack/app/venv/bin/python3 /opt/stack/snap-stack/app/app.py"
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
+
