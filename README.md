@@ -23,7 +23,7 @@ To use Snap Stack, it is necessary to have **DevStack** installed. The official 
 
 ## Workflow
 
-![Snap Stack Workflow](images/workflow.png "Snap Stack Workflow")
+![Snap Stack Workflow](images/animated_workflow.gif "Snap Stack Workflow")
 
 ## Installation Instructions
 
