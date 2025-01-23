@@ -1,4 +1,9 @@
 # Snap Stack - OpenStack Plugin
+![Category](https://img.shields.io/badge/Category-Plugin-blue)
+![Compatibility](https://img.shields.io/badge/Compatibility-OpenStack-orange)
+![Technologies](https://img.shields.io/badge/Technologies-Flask%20%7C%20APScheduler-brightgreen)
+![Features](https://img.shields.io/badge/Features-Snapshot%20Automation%20%7C%20Volume%20Recovery%20%7C%20Storage%20Optimization-green)
+![Prerequisites](https://img.shields.io/badge/Requires-DevStack-yellow)
 
 Snap Stack is an advanced plugin for OpenStack that automates snapshot management and volume recovery. It offers a scalable and configurable solution to improve volume resiliency and optimize storage utilization.
 
