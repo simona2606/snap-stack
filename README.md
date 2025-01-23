@@ -56,4 +56,4 @@ From here you can manage volumes, schedule snapshots, and configure the system.
 
 ## Preview
 
-![Volume Management Interface](images/homepage_snapstack.png "Volume Management Interface")
+![Volume Management Interface](images/homepage_snapstack_bg.png "Volume Management Interface")
